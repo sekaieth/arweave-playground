@@ -1,12 +1,16 @@
 import Arweave = require('arweave');
-import initArweave from "./initialize-arweave";
+import InitArweave from "./initialize-arweave";
+import * as key from "../arweave-key-lvNDkdPnmY5e26mS2SqYW-u5B89ixGywoqT7c5vgaB8.json";
 import * as dotenv from "dotenv";
 
-const loadWallet => {
+const loadWallet = () => {
 
-initArweave.wallets.jwkToAddress(`${process.env.ARWEAVE_PKEY}`).then((address) => {
-    console.log(address);
-    })
+InitArweave.wallets.jwkToAddress(key).then((address) => {
+    return(address)
+})
+     // Get wallet balance
+
+
 };
 
 loadWallet();

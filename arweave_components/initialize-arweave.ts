@@ -1,11 +1,11 @@
 import Arweave = require('arweave');
 
-const initArweave = Arweave.init({
+const InitArweave = Arweave.init({
     host: "arweave.net",
-    port: 443,
-    protocol: "https"
+    port: 1984,
+    protocol: "http",
+    timeout: 20000,
 });
 
-initArweave();
 
-export default initArweave;
+export default InitArweave;
