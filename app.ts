@@ -8,9 +8,9 @@ const app = async () => {
     const delay = ms => new Promise(res => setTimeout(res, ms));
 
     // Get Wallet Address
-    const wallet = await InitArweave.wallets.jwkToAddress(key).then((address) => {
-        console.log("wallet address:", address);
-        return(address);
+    const wallet = await InitArweave.wallets.generate().then((key) => {
+        console.log("wallet address:", key.n);
+        return(key.n);
     });
 
 
@@ -20,51 +20,41 @@ const app = async () => {
 
 
     // Send a file to Arweave storage - READ HERE: https://github.com/ArweaveTeam/arweave-js#submit-a-transaction
-    // let data = fs.readFileSync("./storage/4.png");
+    let data = fs.readFileSync("./storage/4.png");
 
-    // const tx = await InitArweave.createTransaction({ data: data }, key);
-    // tx.addTag("Content-Type", 'images/math-doge');
+    const tx = await InitArweave.createTransaction({ data: data }, key);
+    tx.addTag("Content-Type", 'images/math-doge');
 
-    // await InitArweave.transactions.sign(tx, key);
+    await InitArweave.transactions.sign(tx, key);
 
-    // let uploader = await InitArweave.transactions.getUploader(tx);
+    let uploader = await InitArweave.transactions.getUploader(tx);
 
-    // while (!uploader.isComplete) {
-    //     await uploader.uploadChunk();
-    //     console.log(`${uploader.pctComplete}% complete, ${uploader.uploadedChunks}/${uploader.totalChunks}`);
-    // }
-
-    // console.log(tx.id);
-
-
-    
-    // const response = await InitArweave.transactions.getStatus(tx.id).then(res => {
-    //     return(res);
-    // })
-
-    // while (!response.confirmed) {
-    //     delay(20000)
-    //     await InitArweave.transactions.getStatus(tx.id).then(res => {
-    //         return(res) 
-    //     })
-    // }
-
-    // console.log(response);
-
-
-    let tx = "1dt4OLT3Kx_f7J3AwqmXbNseU8uK31zcj_XUbmYyuLI"
-
-    // Get Transaction data
-    async function getTransactionData(_tx) {
-        await InitArweave.transactions.getData(_tx).then(data => {
-            const decode = (data: string):string => Buffer.from(data, 'base64').toString('binary');
-            console.log(decode)
-        })
+    while (!uploader.isComplete) {
+        await uploader.uploadChunk();
+        console.log(`${uploader.pctComplete}% complete, ${uploader.uploadedChunks}/${uploader.totalChunks}`);
     }
 
-    getTransactionData(tx);
+    console.log(tx.id);
+
 
     
+    const response = await InitArweave.transactions.getStatus(tx.id).then(res => {
+        return(res);
+    })
+
+    await response.confirmed;
+    console.log(response);
+
+
+    // let tx = "1dt4OLT3Kx_f7J3AwqmXbNseU8uK31zcj_XUbmYyuLI"
+
+    // Get Transaction data
+    await InitArweave.transactions.getData(tx.id, {
+        decode: true,
+        string: true,
+    }).then(data => {
+
+    })    
  }
 
 
