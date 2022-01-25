@@ -1,4 +1,3 @@
-//import * as key from "./arweave-key-lvNDkdPnmY5e26mS2SqYW-u5B89ixGywoqT7c5vgaB8.json";
 import InitArweave from "./arweave_components/initialize-arweave";
 import * as fs from 'fs';
 
@@ -8,34 +7,48 @@ import fetch from 'cross-fetch';
 const app = async () => {
 
     const delay = ms => new Promise(res => setTimeout(res, ms));
-    
-    // generate wallet
+
+/* 
+================================================
+            WALLET KEY GENERATION
+================================================
+*/
+
+// ****GENERATE NEW WALLET****
     const generatedKey = await InitArweave.wallets.generate();
 
-    // get address from the wallet
+// ****GET WALLET ADDRESS****
     const walletAddress = await InitArweave.wallets.jwkToAddress(generatedKey);
 
-    // mint 1 AR to that wallet address
+//  ****MINT 1AR TO NEW WALLET****
     const res = await fetch(`http://localhost:1984/mint/${walletAddress}/1000000000000`);
     if (res.status >= 400) {
         throw new Error("Bad response from server");
     }
 
-    // get and show wallet address
+// ****SHOW WALLET ADDRESS*****
     const walletBalance = await InitArweave.wallets.getBalance(walletAddress);
     console.log("Wallet balance:", InitArweave.ar.winstonToAr(walletBalance), "AR");
+
+
+ /* 
+================================================
+            TRANSACTIONS
+================================================
+*/   
+
     
-    // Send a file to Arweave storage - READ HERE: https://github.com/ArweaveTeam/arweave-js#submit-a-transaction
+// ****GRAB FILE**** - READ HERE: https://github.com/ArweaveTeam/arweave-js#submit-a-transaction
     let data = fs.readFileSync("./storage/4.png");
 
-    // create transaction
+// ****CREATE TRANSACTION TO ARLOCAL****
     const tx = await InitArweave.createTransaction({ data: data }, generatedKey);
-    tx.addTag("Content-Type", 'images/math-doge');
+    tx.addTag("Content-Type", 'image/png');
 
-    // sign transaction
+//  ****SIGN TRANSACTION****
     await InitArweave.transactions.sign(tx, generatedKey);
 
-    // upload file
+//  ****UPLOAD FILE****
     let uploader = await InitArweave.transactions.getUploader(tx);
     while (!uploader.isComplete) {
          await uploader.uploadChunk();
@@ -80,8 +93,8 @@ const app = async () => {
 
     if(success)
     {
-        let decodedData = await getTransactionData2(tx.id);
-        console.log(`\n\n--------------------------------------------\nDecoded data: ${decodedData.substring(0, 500)}...`);
+        let decodedData = await getTransactionData(tx.id);
+        console.log(`\n\n--------------------------------------------\nDecoded data: ${decodedData}`);
     }
 
  }
@@ -100,25 +113,25 @@ async function getTransactionData(txId) {
     });
 }
 
-async function getTransactionData2(txId) {
-    console.log(`Transaction Id: ${txId}`);
-    const offset = await fetch(`http://localhost:1984/tx/${txId}/offset`).then((res:any) => {
-        return res.json();
-    }).then((data) => {
-        return(data.offset);
-    });    
-    console.log(`Offset: ${offset}`);
+// async function getTransactionData2(txId) {
+//     console.log(`Transaction Id: ${txId}`);
+//     const offset = await fetch(`http://localhost:1984/tx/${txId}/offset`).then((res:any) => {
+//         return res.json();
+//     }).then((data) => {
+//         return(data.offset);
+//     });    
+//     console.log(`Offset: ${offset}`);
 
-    const chunk:string = await fetch(`http://localhost:1984/chunk/${offset}`).then((res:any) => {
-        return res.json();
-    }).then((data) => {
-        return(data.chunk);
-    });
-    console.log(`chunk: ${chunk.substring(0,500)}...`);
+//     const chunk:string = await fetch(`http://localhost:1984/chunk/${offset}`).then((res:any) => {
+//         return res.json();
+//     }).then((data) => {
+//         return(data.chunk);
+//     });
+//     console.log(`chunk: ${chunk.substring(0,500)}...`);
 
-    const decode = Buffer.from(chunk, 'base64').toString('binary');
-    return decode;
-}
+//     const decode = Buffer.from(chunk, 'base64').toString('binary');
+//     return decode;
+// }
 
 
 app();

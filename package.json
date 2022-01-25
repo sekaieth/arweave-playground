@@ -10,6 +10,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "arlocal": "^1.1.17",
     "arweave": "^1.10.23",
     "cross-fetch": "^3.1.5",
     "dotenv": "^14.2.0",
