@@ -53,51 +53,56 @@ const app = async () => {
 
 // ****UPLOAD FILE****
 
-//       ***** @DEV - THIS IS COMMENTED OUT - WE HAVE TRANSACTIONS ON ARWEAVE MAINNET TO PULL ****
-//     let uploader = await InitArweave.transactions.getUploader(tx);
-//     while (!uploader.isComplete) {
-//          await uploader.uploadChunk();
-//          console.log(`${uploader.pctComplete}% complete, ${uploader.uploadedChunks}/${uploader.totalChunks}`);
-//     }
+/*
+       ***** @DEV - THIS IS COMMENTED OUT - WE HAVE TRANSACTIONS ON ARWEAVE MAINNET TO PULL, 
+              BUT LEFT THIS IN HERE IN CASE WE WANT TO UPLOAD MORE ****
+*/
 
-//     console.log(tx.id);
+/*
+    let uploader = await InitArweave.transactions.getUploader(tx);
+    while (!uploader.isComplete) {
+         await uploader.uploadChunk();
+         console.log(`${uploader.pctComplete}% complete, ${uploader.uploadedChunks}/${uploader.totalChunks}`);
+    }
 
-//     // get status until success or failure.... NOTE: while testing, the confirmed property will just log as saying 'Pending'
-//     // until an upload to mine a block, which will put it on the local chain
-//     var success = false;
-//     var loops = 0;
+    console.log(tx.id);
 
-//     while (!success) {
+    // get status until success or failure.... NOTE: while testing, the confirmed property will just log as saying 'Pending'
+    // until an upload to mine a block, which will put it on the local chain
+    var success = false;
+    var loops = 0;
 
-//         await delay(700)
+    while (!success) {
 
-//         let response = await InitArweave.transactions.getStatus(tx.id);
+        await delay(700)
 
-//         console.log(response);
+        let response = await InitArweave.transactions.getStatus(tx.id);
 
-//         // if there's an error, break out of the loop
-//         if(response.status >= 400)
-//         {
-//             break;
-//         }
-//         else if(response.status === 200 && response.confirmed?.number_of_confirmations >= 0)
-//         {
-//             success = true;
-//         }
+        console.log(response);
 
-//         loops += 1;
-//     }
+        // if there's an error, break out of the loop
+        if(response.status >= 400)
+        {
+            break;
+        }
+        else if(response.status === 200 && response.confirmed?.number_of_confirmations >= 0)
+        {
+            success = true;
+        }
 
-//     console.log(`Upload confirmed: ${success}`);
+        loops += 1;
+    }
 
-//     if(success)
-//     {
-//         let decodedData = await getTransactionData(tx.id);
-//         console.log(`\n\n--------------------------------------------\nDecoded data: ${decodedData}`);
-//     }
+    console.log(`Upload confirmed: ${success}`);
 
-//  }
+    if(success)
+    {
+        let decodedData = await getTransactionData(tx.id);
+        console.log(`\n\n--------------------------------------------\nDecoded data: ${decodedData}`);
+    }
 
+ }
+*/
 
 // Get Transaction data
 // NOTE: i'm getting errors that it's unable to get the chunk at offset -143884. so i tried a different
@@ -115,7 +120,7 @@ async function getTransactionData(txId) {
 
 const transactionData = await getTransactionData(tx);
 console.log(transactionData);
-console.log(`\n\n--------------------------------------------\nDecoded data: ${data.toString()}`)
+console.log(`\n\n--------------------------------------------\nDecoded data: ${data}`)
 
 
 
