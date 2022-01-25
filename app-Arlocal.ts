@@ -1,4 +1,4 @@
-import InitArweave from "./arweave_components/initialize-arweave";
+import InitArlocal from "./arweave_components/initialize-arlocal";
 import * as fs from 'fs';
 
 // instead of continuing to fight node-fetch, i came across this alternative that can just be imported
@@ -15,10 +15,10 @@ const app = async () => {
 */
 
 // ****GENERATE NEW WALLET****
-    const generatedKey = await InitArweave.wallets.generate();
+    const generatedKey = await InitArlocal.wallets.generate();
 
 // ****GET WALLET ADDRESS****
-    const walletAddress = await InitArweave.wallets.jwkToAddress(generatedKey);
+    const walletAddress = await InitArlocal.wallets.jwkToAddress(generatedKey);
 
 //  ****MINT 1AR TO NEW WALLET****
     const res = await fetch(`http://localhost:1984/mint/${walletAddress}/1000000000000`);
@@ -27,8 +27,8 @@ const app = async () => {
     }
 
 // ****SHOW WALLET ADDRESS*****
-    const walletBalance = await InitArweave.wallets.getBalance(walletAddress);
-    console.log("Wallet balance:", InitArweave.ar.winstonToAr(walletBalance), "AR");
+    const walletBalance = await InitArlocal.wallets.getBalance(walletAddress);
+    console.log("Wallet balance:", InitArlocal.ar.winstonToAr(walletBalance), "AR");
 
 
  /* 
@@ -42,14 +42,14 @@ const app = async () => {
     let data = fs.readFileSync("./storage/4.png");
 
 // ****CREATE TRANSACTION TO ARLOCAL****
-    const tx = await InitArweave.createTransaction({ data: data }, generatedKey);
+    const tx = await InitArlocal.createTransaction({ data: data }, generatedKey);
     tx.addTag("Content-Type", 'image/png');
 
 //  ****SIGN TRANSACTION****
-    await InitArweave.transactions.sign(tx, generatedKey);
+    await InitArlocal.transactions.sign(tx, generatedKey);
 
 //  ****UPLOAD FILE****
-    let uploader = await InitArweave.transactions.getUploader(tx);
+    let uploader = await InitArlocal.transactions.getUploader(tx);
     while (!uploader.isComplete) {
          await uploader.uploadChunk();
          console.log(`${uploader.pctComplete}% complete, ${uploader.uploadedChunks}/${uploader.totalChunks}`);
@@ -72,7 +72,7 @@ const app = async () => {
             fetch('http://localhost:1984/mine');
         }
 
-        let response = await InitArweave.transactions.getStatus(tx.id);
+        let response = await InitArlocal.transactions.getStatus(tx.id);
 
         console.log(response);
 
@@ -107,7 +107,7 @@ const app = async () => {
 // ...so I'm not sure why this passing in a negative here. anyway the other function is bringing back raw data
 async function getTransactionData(txId) {
     console.log(`Transaction Id: ${txId}`);
-    await InitArweave.transactions.getData(txId).then(data => {
+    await InitArlocal.transactions.getData(txId).then(data => {
         console.log(data);
         // CjwhRE9DVFlQRSBodG1sPgo...
     });
