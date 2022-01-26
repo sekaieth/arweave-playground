@@ -55,6 +55,12 @@ async function base64_encode(file) {
     const imageBuffer = Buffer.from(fullString.split(",")[1], "base64");
 
 // **** CREATE TRANSACTION
+
+            // Upload Image
+    const tx = await InitArweave.createTransaction({ data: imageBuffer }, key);
+    tx.addTag("Content-Type", 'image/png;base64');
+
+            // Upload JSON
     const tx = await InitArweave.createTransaction({ data: dataJson }, key);
     tx.addTag("Content-Type", 'application/json;utf-8');
 
