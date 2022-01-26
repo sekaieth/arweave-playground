@@ -37,13 +37,29 @@ const app = async () => {
 ================================================
 */   
 
+// **** Base64 Encode ****
+
+async function base64_encode(file) {
+    const encodeB64 = Buffer.from(file, 'binary').toString('base64');
+    return(encodeB64);
+}
     
 // ****GRAB FILE**** - READ HERE: https://github.com/ArweaveTeam/arweave-js#submit-a-transaction
     let data = fs.readFileSync("./storage/4.png");
+    let dataJson = fs.readFileSync("./storage/0.json");
+    let stringifiedJson = JSON.stringify(dataJson);
 
-// ****CREATE TRANSACTION TO ARLOCAL****
-    const tx = await InitArlocal.createTransaction({ data: data }, generatedKey);
-    tx.addTag("Content-Type", 'image/png');
+
+// // ****CREATE TRANSACTION TO ARLOCAL****
+const encodedData = await base64_encode(data);
+const fullString = `${"data:image/png;base64," + encodedData}`
+const imageBuffer = Buffer.from(fullString.split(",")[1], "base64");
+
+// **** CREATE TRANSACTION
+const tx = await InitArlocal.createTransaction({ data: dataJson }, generatedKey);
+// tx.addTag("Content-Type", 'image/png;base64');
+
+
 
 //  ****SIGN TRANSACTION****
     await InitArlocal.transactions.sign(tx, generatedKey);
@@ -98,6 +114,8 @@ const app = async () => {
     }
 
  }
+
+
 
 
 // Get Transaction data

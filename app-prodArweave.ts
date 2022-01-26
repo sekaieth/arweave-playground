@@ -40,25 +40,28 @@ const app = async () => {
 // **** Base64 Encode ****
 
 async function base64_encode(file) {
-    const decode = Buffer.from(file, 'binary').toString('base64');
-    return(decode);
+    const encodeB64 = Buffer.from(file, 'binary').toString('base64');
+    return(encodeB64);
 }
 
 
 
 // ****GET FILE****
     let data = fs.readFileSync("./storage/4.png");
+    let dataJson = fs.readFileSync("./storage/0.json");
 
     const encodedData = await base64_encode(data);
+    const fullString = `${"data:image/png;base64," + encodedData}`
+    const imageBuffer = Buffer.from(fullString.split(",")[1], "base64");
 
 // **** CREATE TRANSACTION
-    const tx = await InitArweave.createTransaction({ data: encodedData }, key);
-    tx.addTag("Content-Type", 'image/png;base64');
+    const tx = await InitArweave.createTransaction({ data: dataJson }, key);
+    tx.addTag("Content-Type", 'application/json;utf-8');
 
     // const tx = "1dt4OLT3Kx_f7J3AwqmXbNseU8uK31zcj_XUbmYyuLI";
 
 // **** SIGN TRANSACTION
-    const signTx = await InitArweave.transactions.sign(tx, key);
+    await InitArweave.transactions.sign(tx, key);
 
 // ****UPLOAD FILE****
 
