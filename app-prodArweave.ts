@@ -18,7 +18,7 @@ const app = async () => {
 
 // ****IMPORT EXISTING WALLET AND GET ADDRESS***
     const walletAddress = await InitArweave.wallets.jwkToAddress(key).then(address => {
-        console.log(address);
+        console.log("Wallet address: ", address);
         return(address);
     })
 
@@ -37,58 +37,67 @@ const app = async () => {
     
 //  **** SENDING A FILE TO ARWEAVE STORAGE**** - READ HERE: https://github.com/ArweaveTeam/arweave-js#submit-a-transaction
 
+// **** Base64 Encode ****
+
+async function base64_encode(file) {
+    const decode = Buffer.from(file, 'binary').toString('base64');
+    return(decode);
+}
+
 
 
 // ****GET FILE****
     let data = fs.readFileSync("./storage/4.png");
 
-// **** CREATE TRANSACTION
-    // const tx = await InitArweave.createTransaction({ data: data }, key);
-    // tx.addTag("Content-Type", 'image/png');
+    const encodedData = await base64_encode(data);
 
-    const tx = "1dt4OLT3Kx_f7J3AwqmXbNseU8uK31zcj_XUbmYyuLI";
+// **** CREATE TRANSACTION
+    const tx = await InitArweave.createTransaction({ data: encodedData }, key);
+    tx.addTag("Content-Type", 'image/png;base64');
+
+    // const tx = "1dt4OLT3Kx_f7J3AwqmXbNseU8uK31zcj_XUbmYyuLI";
 
 // **** SIGN TRANSACTION
-    // await InitArweave.transactions.sign(tx, key);
+    const signTx = await InitArweave.transactions.sign(tx, key);
 
 // ****UPLOAD FILE****
 
 //       ***** @DEV - THIS IS COMMENTED OUT - WE HAVE TRANSACTIONS ON ARWEAVE MAINNET TO PULL ****
-//     let uploader = await InitArweave.transactions.getUploader(tx);
-//     while (!uploader.isComplete) {
-//          await uploader.uploadChunk();
-//          console.log(`${uploader.pctComplete}% complete, ${uploader.uploadedChunks}/${uploader.totalChunks}`);
-//     }
+    let uploader = await InitArweave.transactions.getUploader(tx);
+    while (!uploader.isComplete) {
+         await uploader.uploadChunk();
+         console.log(`${uploader.pctComplete}% complete, ${uploader.uploadedChunks}/${uploader.totalChunks}`);
+    }
 
-//     console.log(tx.id);
+    console.log("Transaction ID:", tx.id);
 
-//     // get status until success or failure.... NOTE: while testing, the confirmed property will just log as saying 'Pending'
-//     // until an upload to mine a block, which will put it on the local chain
-//     var success = false;
-//     var loops = 0;
+     // get status until success or failure.... NOTE: while testing, the confirmed property will just log as saying 'Pending'
+     // until an upload to mine a block, which will put it on the local chain
+    var success = false;
+    var loops = 0;
 
-//     while (!success) {
+    while (!success) {
 
-//         await delay(700)
+        await delay(2000)
 
-//         let response = await InitArweave.transactions.getStatus(tx.id);
+        let response = await InitArweave.transactions.getStatus(tx.id);
 
-//         console.log(response);
+        console.log(response);
 
-//         // if there's an error, break out of the loop
-//         if(response.status >= 400)
-//         {
-//             break;
-//         }
-//         else if(response.status === 200 && response.confirmed?.number_of_confirmations >= 0)
-//         {
-//             success = true;
-//         }
+        // if there's an error, break out of the loop
+        if(response.status >= 400)
+        {
+            break;
+        }
+        else if(response.status === 200 && response.confirmed?.number_of_confirmations >= 0)
+        {
+            success = true;
+        }
 
-//         loops += 1;
-//     }
+        loops += 1;
+    }
 
-//     console.log(`Upload confirmed: ${success}`);
+    console.log(`Upload confirmed: ${success}`);
 
 //     if(success)
 //     {
@@ -104,18 +113,18 @@ const app = async () => {
 // function with calling what's in the arlocal api, and determined you can get the offset from tx/id/offset
 // and then the chunk of data from chunk/offset (as a positive number, not negative)
 // ...so I'm not sure why this passing in a negative here. anyway the other function is bringing back raw data
-async function getTransactionData(txId) {
-    console.log(`Transaction Id: ${txId}`);
-    await InitArweave.transactions.getData(tx).then(data => {
-        return(data);
-        // CjwhRE9DVFlQRSBodG1sPgo...
-    });
-}
+// async function getTransactionData(txId) {
+//     console.log(`Transaction Id: ${txId}`);
+//     await InitArweave.transactions.getData(tx.id).then(data => {
+//         return(data);
+//         // CjwhRE9DVFlQRSBodG1sPgo...
+//     });
+// }
 
 
-const transactionData = await getTransactionData(tx);
-console.log(transactionData);
-console.log(`\n\n--------------------------------------------\nDecoded data: ${data.toString()}`)
+// const transactionData = await getTransactionData(tx);
+// console.log(transactionData);
+// console.log(`\n\n--------------------------------------------\nDecoded data: ${data.toString()}`)
 
 
 
